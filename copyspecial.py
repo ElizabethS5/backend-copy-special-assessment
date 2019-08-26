@@ -14,17 +14,26 @@ import os
 import shutil
 import subprocess
 import argparse
-import sys
 
 # This is to help coaches and graders identify student assignments
 __author__ = "ElizabethS5"
 
 
-# +++your code here+++
-# Write functions and modify main() to call them
+def get_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--todir', help='dest dir for special files')
+    parser.add_argument('--tozip', help='dest zipfile for special files')
+    parser.add_argument('from_dir', help='directory being searched')
+    return parser.parse_args()
+
+
 def get_special_paths(dir):
-    """returns a list of the absolute paths of the special files in the given directory"""
-    return [os.path.abspath(file) for file in os.listdir(dir) if re.search(r'__\w+__', file)]
+    """returns list of absolute paths of special files in given directory"""
+    return [
+        os.path.abspath(file)
+        for file in os.listdir(dir)
+        if re.search(r'__\w+__', file)
+    ]
 
 
 def copy_to(paths, directory):
@@ -36,7 +45,7 @@ def copy_to(paths, directory):
 
 def zip_to(paths, zippath):
     """given a list of paths, zip those files up into the given zipfile"""
-    cmd = ['zip', '-j', 'tmp.zip'] + paths
+    cmd = ['zip', '-j', zippath] + paths
     print("Command I'm going to do:")
     print(' '.join(cmd))
     p = subprocess.run(cmd, stdout=subprocess.PIPE)
@@ -46,29 +55,19 @@ def zip_to(paths, zippath):
 
 
 def main():
-    # This snippet will help you get started with the argparse module.
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--todir', help='dest dir for special files')
-    parser.add_argument('--tozip', help='dest zipfile for special files')
-    parser.add_argument('from_dir', help='directory being searched')
-    # TODO need an argument to pick up 'from_dir'
-    args = parser.parse_args()
+    """Use cmd line arguments to copy, zip, or print special files"""
+    args = get_arguments()
+    to_directory = args.todir
+    to_zip = args.tozip
+    from_directory = args.from_dir
+    file_paths = get_special_paths(from_directory)
 
-    # TODO you must write your own code to get the cmdline args.
-    # Read the docs and examples for the argparse module about how to do this.
-
-    # Parsing command line arguments is a must-have skill.
-    # This is input data validation.  If something is wrong (or missing) with any
-    # required args, the general rule is to print a usage message and exit(1).
-
-    # +++your code here+++
-    # Call your functions
-    if args.todir:
-        copy_to(get_special_paths(args.from_dir), args.todir)
-    elif args.tozip:
-        zip_to(get_special_paths(args.from_dir), args.tozip)
+    if to_directory:
+        copy_to(file_paths, to_directory)
+    elif to_zip:
+        zip_to(file_paths, to_zip)
     else:
-        print('\n'.join(get_special_paths(args.from_dir)) + '\n')
+        print('\n'.join(file_paths) + '\n')
 
 
 if __name__ == "__main__":
