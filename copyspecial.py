@@ -62,10 +62,11 @@ def main():
     from_directory = args.from_dir
     file_paths = get_special_paths(from_directory)
 
-    if to_directory:
-        copy_to(file_paths, to_directory)
-    elif to_zip:
-        zip_to(file_paths, to_zip)
+    if to_directory or to_zip:
+        if to_directory:
+            copy_to(file_paths, to_directory)
+        if to_zip:
+            zip_to(file_paths, to_zip)
     else:
         print('\n'.join(file_paths) + '\n')
 
